@@ -4,7 +4,7 @@
   "description": "Event-driven automation platform for CRM DevOps pipeline",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"require('fs').mkdirSync('dist/dashboard',{recursive:true});require('fs').copyFileSync('src/dashboard/index.html','dist/dashboard/index.html');console.log('Dashboard copied to dist/')\"",
     "test": "jest --runInBand",
     "test:unit": "jest --runInBand --testPathPattern=tests/unit",
     "test:property": "jest --runInBand --testPathPattern=tests/property",

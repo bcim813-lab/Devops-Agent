@@ -161,7 +161,7 @@ export class RollbackHandler {
         failureReason: `Rollback dispatch failed: ${dispatchResult.error.message}`,
       };
 
-      this.emit(criticalEvent);
+      this.emit(criticalEvent as unknown as OutboundEvent);
       this.haltDeployment(deployment, "rollback dispatch failed");
       return;
     }
@@ -224,7 +224,7 @@ export class RollbackHandler {
           failureReason: `Rollback monitoring failed: ${readinessResult.error.message}`,
         };
 
-        this.emit(criticalEvent);
+        this.emit(criticalEvent as unknown as OutboundEvent);
         this.haltDeployment(deployment, "rollback monitoring failed");
         return;
       }
@@ -265,7 +265,7 @@ export class RollbackHandler {
           namespace,
         };
 
-        this.emit(successEvent);
+        this.emit(successEvent as unknown as OutboundEvent);
         return;
       }
 
@@ -300,7 +300,7 @@ export class RollbackHandler {
       failureReason: `Rollback did not complete within ${rollbackTimeoutMs}ms`,
     };
 
-    this.emit(criticalEvent);
+    this.emit(criticalEvent as unknown as OutboundEvent);
     this.haltDeployment(deployment, "rollback timeout");
   }
 }

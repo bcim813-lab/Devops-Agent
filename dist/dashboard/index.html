@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CRM DevOps Agent — Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+:root{--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--purple:#a855f7;--gray:#64748b;--surface:#1e2130;--surface2:#252a3d;--border:#2d3550}
+header{background:#1e2130;border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:.75rem;font-size:1.1rem;font-weight:700;color:#fff}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#a855f7);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.header-right{display:flex;align-items:center;gap:1rem}
+.live-badge{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--green)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.last-refresh{font-size:.75rem;color:var(--gray)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;gap:0}
+.nav-tab{padding:.8rem 1.25rem;font-size:.85rem;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray);transition:all .2s;white-space:nowrap}
+.nav-tab:hover{color:#fff}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+.page{display:none}.page.active{display:block}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.card-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);margin-bottom:.75rem}
+.stat-value{font-size:2rem;font-weight:700;color:#fff;line-height:1}
+.stat-sub{font-size:.78rem;color:var(--gray);margin-top:.35rem}
+.stat-trend{font-size:.78rem;margin-top:.35rem}
+.trend-up{color:var(--green)}.trend-down{color:var(--red)}.trend-flat{color:var(--gray)}
+.badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:999px;font-size:.72rem;font-weight:600}
+.badge-green{background:#166534;color:var(--green)}
+.badge-red{background:#7f1d1d;color:#fca5a5}
+.badge-yellow{background:#78350f;color:#fcd34d}
+.badge-blue{background:#1e3a5f;color:#93c5fd}
+.badge-gray{background:#1e293b;color:var(--gray)}
+.badge-purple{background:#4a1d96;color:#d8b4fe}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.section-title{font-size:1rem;font-weight:600;color:#fff}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{text-align:left;padding:.6rem .9rem;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);border-bottom:1px solid var(--border)}
+td{padding:.7rem .9rem;border-bottom:1px solid var(--border);color:#cbd5e1;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.agent-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--surface2);border-radius:8px;margin-bottom:.5rem;border:1px solid var(--border)}
+.agent-name{font-weight:600;font-size:.88rem;color:#fff}
+.agent-info{font-size:.75rem;color:var(--gray);margin-top:.15rem}
+.agent-right{display:flex;align-items:center;gap:.75rem}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot-red{background:var(--red);box-shadow:0 0 6px var(--red)}
+.dot-yellow{background:var(--yellow);box-shadow:0 0 6px var(--yellow)}
+.dot-gray{background:var(--gray)}
+.btn{padding:.45rem 1rem;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#2563eb}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-success{background:#16a34a;color:#fff}.btn-success:hover{background:#15803d}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:#cbd5e1}.btn-ghost:hover{background:var(--surface2)}
+.btn-sm{padding:.3rem .7rem;font-size:.75rem}
+.input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;color:#fff;font-size:.85rem;outline:none;width:100%}
+.input:focus{border-color:var(--blue)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.form-group{display:flex;flex-direction:column;gap:.35rem}
+.form-label{font-size:.75rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.04em}
+.select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;color:#fff;font-size:.85rem;outline:none;width:100%;appearance:none}
+.metric-bar{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;margin-top:.4rem}
+.metric-fill{height:100%;border-radius:3px;transition:width .5s}
+.fill-green{background:var(--green)}.fill-yellow{background:var(--yellow)}.fill-red{background:var(--red)}.fill-blue{background:var(--blue)}
+.log-box{background:#0a0c14;border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:'Cascadia Code','Fira Code',monospace;font-size:.75rem;height:320px;overflow-y:auto;color:#94a3b8}
+.log-line{padding:.15rem 0;border-bottom:1px solid rgba(255,255,255,.04);line-height:1.5}
+.log-info{color:#60a5fa}.log-warn{color:#fbbf24}.log-error{color:#f87171}.log-debug{color:#94a3b8}
+.log-time{color:#475569;margin-right:.5rem}
+.log-action{color:#a78bfa;margin-right:.5rem}
+.toast-container{position:fixed;top:70px;right:1.5rem;z-index:1000;display:flex;flex-direction:column;gap:.5rem}
+.toast{padding:.75rem 1.25rem;border-radius:8px;font-size:.82rem;font-weight:500;max-width:320px;animation:slideIn .25s ease;border:1px solid}
+.toast-success{background:#14532d;border-color:#16a34a;color:#bbf7d0}
+.toast-error{background:#450a0a;border-color:#dc2626;color:#fecaca}
+.toast-info{background:#1e3a5f;border-color:#2563eb;color:#bfdbfe}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.timeline{position:relative;padding-left:1.5rem}
+.timeline::before{content:'';position:absolute;left:.35rem;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline-item{position:relative;margin-bottom:1rem}
+.timeline-dot{position:absolute;left:-1.17rem;top:.25rem;width:10px;height:10px;border-radius:50%;border:2px solid var(--surface)}
+.timeline-content{font-size:.82rem}
+.timeline-time{font-size:.72rem;color:var(--gray);margin-bottom:.15rem}
+.chart-bar-group{display:flex;align-items:flex-end;gap:4px;height:80px}
+.chart-bar{flex:1;border-radius:3px 3px 0 0;transition:height .5s;min-width:8px;cursor:pointer;position:relative}
+.chart-bar:hover::after{content:attr(data-val);position:absolute;top:-1.5rem;left:50%;transform:translateX(-50%);background:#1e2130;border:1px solid var(--border);padding:.1rem .4rem;border-radius:4px;font-size:.7rem;white-space:nowrap;color:#fff}
+.chart-labels{display:flex;gap:4px;margin-top:.25rem}
+.chart-label{flex:1;text-align:center;font-size:.65rem;color:var(--gray)}
+.progress-ring{transform:rotate(-90deg)}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--gray)}
+.empty-state .empty-icon{font-size:2.5rem;margin-bottom:.75rem}
+.empty-state p{font-size:.85rem}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:1.25rem}
+.modal-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.25rem}
+.divider{height:1px;background:var(--border);margin:1.25rem 0}
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toasts"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚙️</div>
+    CRM DevOps Agent
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <span class="last-refresh" id="lastRefresh">Refreshing...</span>
+    <button class="btn btn-ghost btn-sm" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-tab active" onclick="showPage('overview',this)">📊 Overview</div>
+  <div class="nav-tab" onclick="showPage('agents',this)">🤖 Agents</div>
+  <div class="nav-tab" onclick="showPage('pipeline',this)">🔧 Pipeline</div>
+  <div class="nav-tab" onclick="showPage('deployments',this)">🚀 Deployments</div>
+  <div class="nav-tab" onclick="showPage('incidents',this)">🚨 Incidents</div>
+  <div class="nav-tab" onclick="showPage('notifications',this)">🔔 Notifications</div>
+  <div class="nav-tab" onclick="showPage('metrics',this)">📈 Metrics</div>
+  <div class="nav-tab" onclick="showPage('logs',this)">📋 Logs</div>
+  <div class="nav-tab" onclick="showPage('config',this)">⚙️ Config</div>
+</nav>
+
+<div class="main">
+
+<!-- ═══════════════════════════ OVERVIEW PAGE ═══════════════════════════ -->
+<div class="page active" id="page-overview">
+  <div class="grid-4">
+    <div class="card">
+      <div class="card-title">System Status</div>
+      <div class="stat-value" id="ov-status" style="font-size:1.4rem">—</div>
+      <div class="stat-sub" id="ov-status-sub">Checking...</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Healthy Agents</div>
+      <div class="stat-value" id="ov-healthy">—</div>
+      <div class="stat-sub">of 4 agents</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Events Processed</div>
+      <div class="stat-value" id="ov-events">0</div>
+      <div class="stat-sub">total</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Uptime</div>
+      <div class="stat-value" id="ov-uptime" style="font-size:1.4rem">—</div>
+      <div class="stat-sub" id="ov-uptime-sub">Since last start</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-header">
+        <span class="section-title">Agent Health</span>
+        <span class="badge badge-green" id="ov-agent-badge">Loading...</span>
+      </div>
+      <div id="ov-agents-list">
+        <div style="color:var(--gray);font-size:.85rem;text-align:center;padding:2rem">Loading agents...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-header">
+        <span class="section-title">Recent Activity</span>
+      </div>
+      <div class="timeline" id="ov-timeline">
+        <div style="color:var(--gray);font-size:.85rem;text-align:center;padding:2rem">Loading activity...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">Pipeline Agent</div>
+      <div style="display:flex;flex-direction:column;gap:.6rem" id="ov-pipeline-stats">
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Events Processed</span><span id="ov-pipe-ev">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Success Rate</span><span id="ov-pipe-sr">0%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Avg Latency</span><span id="ov-pipe-lat">0ms</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Deployment Agent</div>
+      <div style="display:flex;flex-direction:column;gap:.6rem">
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Events Processed</span><span id="ov-dep-ev">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Success Rate</span><span id="ov-dep-sr">0%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Avg Latency</span><span id="ov-dep-lat">0ms</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Notification Agent</div>
+      <div style="display:flex;flex-direction:column;gap:.6rem">
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Events Processed</span><span id="ov-not-ev">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Success Rate</span><span id="ov-not-sr">0%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">Avg Latency</span><span id="ov-not-lat">0ms</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ AGENTS PAGE ═══════════════════════════ -->
+<div class="page" id="page-agents">
+  <div class="section-header">
+    <span class="section-title">Agent Health Monitor</span>
+    <button class="btn btn-ghost btn-sm" onclick="loadHealth()">↻ Refresh</button>
+  </div>
+  <div id="agents-detail-list">
+    <div style="color:var(--gray);text-align:center;padding:3rem">Loading...</div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-title" style="margin-bottom:1rem">Heartbeat Timeline</div>
+  <div class="card">
+    <div id="heartbeat-timeline">
+      <div style="color:var(--gray);font-size:.83rem;text-align:center;padding:1.5rem">Heartbeat data will appear here after agents respond.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PIPELINE PAGE ═══════════════════════════ -->
+<div class="page" id="page-pipeline">
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Trigger Pipeline</div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Repository Name</label>
+        <input class="input" id="pipe-repo" placeholder="crm-api" value="crm-api"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Branch</label>
+        <input class="input" id="pipe-branch" placeholder="main" value="main"/>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label class="form-label">Max Duration (seconds, optional)</label>
+        <input class="input" id="pipe-maxdur" placeholder="3600 or leave blank"/>
+      </div>
+      <button class="btn btn-primary" onclick="triggerPipeline()" style="width:100%">▶ Trigger Pipeline</button>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Pipeline Runs</div>
+      <div id="pipeline-runs-list">
+        <div class="empty-state"><div class="empty-icon">🔧</div><p>No pipeline runs yet.<br>Trigger one to see results.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <span class="section-title">Pipeline Event Log</span>
+      <button class="btn btn-ghost btn-sm" onclick="clearLog('pipeline-event-log')">Clear</button>
+    </div>
+    <div class="log-box" id="pipeline-event-log">
+      <div class="log-line log-debug"><span class="log-time">—</span>Waiting for pipeline events...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DEPLOYMENTS PAGE ═══════════════════════════ -->
+<div class="page" id="page-deployments">
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Trigger Deployment</div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Deployment Name</label>
+        <input class="input" id="dep-name" placeholder="crm-api" value="crm-api"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Namespace</label>
+        <input class="input" id="dep-ns" placeholder="production" value="production"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Manifest File Path</label>
+        <input class="input" id="dep-manifest" placeholder="/manifests/crm-api.yaml"/>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label class="form-label">Pipeline Run ID</label>
+        <input class="input" id="dep-runid" placeholder="run-001"/>
+      </div>
+      <button class="btn btn-primary" onclick="triggerDeployment()" style="width:100%">🚀 Deploy</button>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Halt Registry</div>
+      <div id="halt-registry-list">
+        <div class="empty-state"><div class="empty-icon">✅</div><p>No deployments halted.</p></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title" style="margin-bottom:.75rem">Resume Halted Deployment</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Deployment Name</label>
+          <input class="input" id="resume-name" placeholder="crm-api"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Namespace</label>
+          <input class="input" id="resume-ns" placeholder="production"/>
+        </div>
+      </div>
+      <button class="btn btn-success btn-sm" onclick="resumeDeployment()">▶ Resume Deployment</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <span class="section-title">Deployment Events</span>
+      <button class="btn btn-ghost btn-sm" onclick="clearLog('deploy-event-log')">Clear</button>
+    </div>
+    <div class="log-box" id="deploy-event-log">
+      <div class="log-line log-debug"><span class="log-time">—</span>Waiting for deployment events...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ INCIDENTS PAGE ═══════════════════════════ -->
+<div class="page" id="page-incidents">
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Simulate PagerDuty Alert</div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Incident ID</label>
+        <input class="input" id="inc-id" placeholder="INC-001"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Service Name</label>
+        <input class="input" id="inc-svc" placeholder="crm-api" value="crm-api"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Severity</label>
+        <select class="select" id="inc-severity">
+          <option value="P1">P1 — Critical</option>
+          <option value="P2">P2 — High</option>
+          <option value="P3">P3 — Medium (ignored)</option>
+          <option value="P4">P4 — Low (ignored)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label class="form-label">Details (JSON, optional)</label>
+        <input class="input" id="inc-details" placeholder='{"error":"OOM"}' value="{}"/>
+      </div>
+      <button class="btn btn-danger" onclick="simulateAlert()" style="width:100%">🚨 Simulate Alert</button>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Runbook Registry</div>
+      <div id="runbook-list">
+        <div class="empty-state"><div class="empty-icon">📖</div><p>No runbooks registered.<br>Register one below.</p></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title" style="margin-bottom:.75rem">Register Runbook</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Service Name</label>
+          <input class="input" id="rb-svc" placeholder="crm-api" value="crm-api"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Version</label>
+          <input class="input" id="rb-ver" placeholder="1.0.0" value="1.0.0"/>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Timeout (seconds, max 300)</label>
+        <input class="input" id="rb-timeout" placeholder="300" value="300"/>
+      </div>
+      <button class="btn btn-success btn-sm" onclick="registerRunbook()">+ Register Runbook</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <span class="section-title">Incident Events</span>
+      <button class="btn btn-ghost btn-sm" onclick="clearLog('incident-event-log')">Clear</button>
+    </div>
+    <div class="log-box" id="incident-event-log">
+      <div class="log-line log-debug"><span class="log-time">—</span>Waiting for incident events...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ NOTIFICATIONS PAGE ═══════════════════════════ -->
+<div class="page" id="page-notifications">
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Send Test Notification</div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Channel</label>
+        <input class="input" id="notif-channel" placeholder="#deployments" value="#deployments"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Service Name</label>
+        <input class="input" id="notif-svc" placeholder="crm-api" value="crm-api"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Outcome</label>
+        <select class="select" id="notif-outcome">
+          <option value="success">Success</option>
+          <option value="failure">Failure</option>
+          <option value="rollback">Rollback</option>
+          <option value="escalated">Escalated</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">On-Call Handle (optional)</label>
+        <input class="input" id="notif-handle" placeholder="@oncall-user"/>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label class="form-label">Event Type</label>
+        <select class="select" id="notif-eventtype">
+          <option value="DeploymentSuccessEvent">DeploymentSuccessEvent</option>
+          <option value="PipelineTriggerFailedEvent">PipelineTriggerFailedEvent</option>
+          <option value="RollbackEvent">RollbackEvent</option>
+          <option value="IncidentEscalationEvent">IncidentEscalationEvent</option>
+          <option value="CriticalFailureEvent">CriticalFailureEvent</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="sendTestNotification()" style="width:100%">🔔 Send Notification</button>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Delivery History</div>
+      <div id="notification-history">
+        <div class="empty-state"><div class="empty-icon">🔔</div><p>No notifications sent yet.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <span class="section-title">Notification Events</span>
+      <button class="btn btn-ghost btn-sm" onclick="clearLog('notif-event-log')">Clear</button>
+    </div>
+    <div class="log-box" id="notif-event-log">
+      <div class="log-line log-debug"><span class="log-time">—</span>Waiting for notification events...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ METRICS PAGE ═══════════════════════════ -->
+<div class="page" id="page-metrics">
+  <div class="section-header">
+    <span class="section-title">Prometheus Metrics</span>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn btn-ghost btn-sm" onclick="loadMetrics()">↻ Refresh</button>
+      <a href="/metrics" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none">↗ Raw</a>
+    </div>
+  </div>
+  <div class="grid-4" id="metrics-summary">
+    <div class="card"><div class="card-title">Pipeline Events</div><div class="stat-value" id="m-pipe-total">0</div></div>
+    <div class="card"><div class="card-title">Deployment Events</div><div class="stat-value" id="m-dep-total">0</div></div>
+    <div class="card"><div class="card-title">Incident Events</div><div class="stat-value" id="m-inc-total">0</div></div>
+    <div class="card"><div class="card-title">Notification Events</div><div class="stat-value" id="m-not-total">0</div></div>
+  </div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="section-title" style="margin-bottom:1rem">Events by Agent (Bar Chart)</div>
+    <div style="display:flex;gap:2rem;align-items:flex-end;flex-wrap:wrap" id="metrics-bars">
+      <div style="text-align:center;min-width:80px">
+        <div class="chart-bar-group" id="bar-pipeline"><div class="chart-bar fill-blue" style="height:20px" data-val="0"></div></div>
+        <div style="font-size:.72rem;color:var(--gray);margin-top:.25rem">Pipeline</div>
+      </div>
+      <div style="text-align:center;min-width:80px">
+        <div class="chart-bar-group" id="bar-deployment"><div class="chart-bar fill-green" style="height:20px" data-val="0"></div></div>
+        <div style="font-size:.72rem;color:var(--gray);margin-top:.25rem">Deployment</div>
+      </div>
+      <div style="text-align:center;min-width:80px">
+        <div class="chart-bar-group" id="bar-incident"><div class="chart-bar fill-red" style="height:20px" data-val="0"></div></div>
+        <div style="font-size:.72rem;color:var(--gray);margin-top:.25rem">Incident</div>
+      </div>
+      <div style="text-align:center;min-width:80px">
+        <div class="chart-bar-group" id="bar-notification"><div class="chart-bar fill-yellow" style="height:20px" data-val="0"></div></div>
+        <div style="font-size:.72rem;color:var(--gray);margin-top:.25rem">Notification</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <span class="section-title">Raw Prometheus Output</span>
+    </div>
+    <div class="log-box" id="metrics-raw" style="height:400px">Loading...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ LOGS PAGE ═══════════════════════════ -->
+<div class="page" id="page-logs">
+  <div class="card" style="margin-bottom:1rem">
+    <div class="section-header">
+      <span class="section-title">System Event Stream</span>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <select class="select" id="log-filter" style="width:180px" onchange="filterLogs()">
+          <option value="all">All Levels</option>
+          <option value="info">Info</option>
+          <option value="warn">Warn</option>
+          <option value="error">Error</option>
+          <option value="debug">Debug</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearLog('main-log-box')">Clear</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleLogPause()" id="log-pause-btn">⏸ Pause</button>
+      </div>
+    </div>
+    <div class="log-box" id="main-log-box" style="height:500px">
+      <div class="log-line log-info"><span class="log-time">—</span><span class="log-action">system</span>Dashboard connected. Events will appear here.</div>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">Log Counts</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:#60a5fa">INFO</span><span id="lc-info">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:#fbbf24">WARN</span><span id="lc-warn">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:#f87171">ERROR</span><span id="lc-error">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--gray)">DEBUG</span><span id="lc-debug">0</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Most Recent Error</div>
+      <div id="last-error" style="font-size:.8rem;color:var(--gray)">None</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Active Correlations</div>
+      <div id="active-correlations" style="font-size:.8rem;color:var(--gray)">None</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CONFIG PAGE ═══════════════════════════ -->
+<div class="page" id="page-config">
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Current Configuration</div>
+      <div id="config-display">
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label class="form-label">GitHub Webhook Secret</label>
+          <div class="input" style="background:var(--surface);color:var(--gray)">●●●●●●●● (masked)</div>
+        </div>
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label class="form-label">Jenkins Base URL</label>
+          <div class="input" id="cfg-jenkins-url" style="background:var(--surface);color:#cbd5e1">—</div>
+        </div>
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label class="form-label">Jenkins API Token</label>
+          <div class="input" style="background:var(--surface);color:var(--gray)">●●●●●●●● (masked)</div>
+        </div>
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label class="form-label">PagerDuty API Token</label>
+          <div class="input" style="background:var(--surface);color:var(--gray)">●●●●●●●● (masked)</div>
+        </div>
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label class="form-label">Slack Bot Token</label>
+          <div class="input" style="background:var(--surface);color:var(--gray)">●●●●●●●● (masked)</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Pipeline Settings</div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Max Duration (seconds)</label>
+        <input class="input" id="cfg-maxdur" placeholder="3600 or blank for none"/>
+      </div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label class="form-label">Rollout Timeout (seconds)</label>
+        <input class="input" id="cfg-rollouttimeout" placeholder="600" value="600"/>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="applyPipelineConfig()" style="margin-bottom:1.5rem">Apply Settings</button>
+      <div class="divider"></div>
+      <div class="section-title" style="margin-bottom:1rem">Hot Reload</div>
+      <p style="font-size:.82rem;color:var(--gray);margin-bottom:1rem">Trigger a configuration reload without restarting the server. Invalid configs are rejected and the previous valid config is retained.</p>
+      <button class="btn btn-ghost btn-sm" onclick="triggerConfigReload()">🔄 Trigger Hot Reload</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin-bottom:1rem">Environment Variables Reference</div>
+    <table>
+      <thead><tr><th>Variable</th><th>Required</th><th>Description</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><code style="color:#a78bfa">GITHUB_WEBHOOK_SECRET</code></td><td><span class="badge badge-red">Required</span></td><td style="color:var(--gray)">GitHub webhook HMAC secret</td><td id="env-github"><span class="badge badge-gray">Unknown</span></td></tr>
+        <tr><td><code style="color:#a78bfa">JENKINS_BASE_URL</code></td><td><span class="badge badge-red">Required</span></td><td style="color:var(--gray)">Jenkins server base URL</td><td id="env-jenkins-url"><span class="badge badge-gray">Unknown</span></td></tr>
+        <tr><td><code style="color:#a78bfa">JENKINS_API_TOKEN</code></td><td><span class="badge badge-red">Required</span></td><td style="color:var(--gray)">Jenkins API token</td><td id="env-jenkins-token"><span class="badge badge-gray">Unknown</span></td></tr>
+        <tr><td><code style="color:#a78bfa">PAGERDUTY_API_TOKEN</code></td><td><span class="badge badge-red">Required</span></td><td style="color:var(--gray)">PagerDuty REST API key</td><td id="env-pd"><span class="badge badge-gray">Unknown</span></td></tr>
+        <tr><td><code style="color:#a78bfa">SLACK_BOT_TOKEN</code></td><td><span class="badge badge-red">Required</span></td><td style="color:var(--gray)">Slack bot OAuth token</td><td id="env-slack"><span class="badge badge-gray">Unknown</span></td></tr>
+        <tr><td><code style="color:#a78bfa">PORT</code></td><td><span class="badge badge-green">Optional</span></td><td style="color:var(--gray)">HTTP server port (default 8080)</td><td><span class="badge badge-green">Optional</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- end .main -->
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────
+const state = {
+  events: [],
+  pipelineRuns: [],
+  haltedDeployments: [],
+  runbooks: [],
+  notificationHistory: [],
+  logCounts: { info:0, warn:0, error:0, debug:0 },
+  logPaused: false,
+  startTime: Date.now(),
+  correlations: new Set(),
+  lastError: null,
+};
+
+// ── Navigation ─────────────────────────────────────────────────────────
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'metrics') loadMetrics();
+  if (name === 'agents') loadHealth();
+}
+
+// ── Toast notifications ────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toasts');
+  const d = document.createElement('div');
+  d.className = 'toast toast-' + type;
+  d.textContent = msg;
+  c.appendChild(d);
+  setTimeout(() => d.remove(), 4000);
+}
+
+// ── Time helpers ───────────────────────────────────────────────────────
+function fmt(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleTimeString();
+}
+function fmtElapsed(ms) {
+  if (ms < 1000) return ms + 'ms';
+  if (ms < 60000) return (ms/1000).toFixed(1) + 's';
+  return Math.floor(ms/60000) + 'm ' + Math.floor((ms%60000)/1000) + 's';
+}
+function uptime() {
+  return fmtElapsed(Date.now() - state.startTime);
+}
+
+// ── Log helpers ────────────────────────────────────────────────────────
+function appendLog(boxId, level, action, msg, correlationId) {
+  if (state.logPaused && boxId === 'main-log-box') return;
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  const d = document.createElement('div');
+  d.className = 'log-line log-' + level;
+  d.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span>`
+    + `<span class="log-action">${action}</span>${msg}`
+    + (correlationId ? ` <span style="color:#475569;font-size:.7rem">[${correlationId.slice(0,8)}]</span>` : '');
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+  // remove old entries
+  while (box.children.length > 300) box.removeChild(box.firstChild);
+}
+
+function clearLog(id) {
+  const b = document.getElementById(id);
+  if (b) b.innerHTML = '';
+}
+
+function systemLog(level, action, msg, correlationId) {
+  state.logCounts[level] = (state.logCounts[level]||0)+1;
+  updateLogCounts();
+  appendLog('main-log-box', level, action, msg, correlationId);
+  if (level === 'error') {
+    state.lastError = msg;
+    document.getElementById('last-error').textContent = new Date().toLocaleTimeString() + ' — ' + msg;
+  }
+  if (correlationId) {
+    state.correlations.add(correlationId.slice(0,8));
+    if (state.correlations.size > 20) state.correlations.delete(state.correlations.values().next().value);
+    document.getElementById('active-correlations').textContent = [...state.correlations].join(', ') || 'None';
+  }
+}
+
+function updateLogCounts() {
+  ['info','warn','error','debug'].forEach(l => {
+    const el = document.getElementById('lc-'+l);
+    if (el) el.textContent = state.logCounts[l] || 0;
+  });
+}
+
+function toggleLogPause() {
+  state.logPaused = !state.logPaused;
+  document.getElementById('log-pause-btn').textContent = state.logPaused ? '▶ Resume' : '⏸ Pause';
+}
+
+function filterLogs() { /* live filter via class toggle */ }
+</script>
+
+<script>
+// ── API calls ──────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  try {
+    const opts = { method, headers: {'Content-Type':'application/json'} };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(path, opts);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const ct = r.headers.get('content-type') || '';
+    return ct.includes('json') ? r.json() : r.text();
+  } catch(e) {
+    systemLog('error', path, e.message);
+    throw e;
+  }
+}
+
+// ── Health / Overview ──────────────────────────────────────────────────
+async function loadHealth() {
+  try {
+    const data = await api('GET', '/health');
+    renderHealth(data);
+    renderOverviewAgents(data);
+  } catch(e) {
+    document.getElementById('ov-status').textContent = 'ERROR';
+    document.getElementById('ov-status').style.color = 'var(--red)';
+  }
+}
+
+function renderHealth(data) {
+  const agents = data.agents || [];
+  const healthy = agents.filter(a => a.status === 'healthy').length;
+  const total = agents.length;
+
+  // Overview stats
+  const allHealthy = healthy === total && total > 0;
+  const anyUnhealthy = agents.some(a => a.status === 'unhealthy');
+  document.getElementById('ov-status').textContent = anyUnhealthy ? '⚠ DEGRADED' : allHealthy ? '✅ HEALTHY' : '🔄 STARTING';
+  document.getElementById('ov-status').style.color = anyUnhealthy ? 'var(--yellow)' : allHealthy ? 'var(--green)' : 'var(--gray)';
+  document.getElementById('ov-status-sub').textContent = `Last checked: ${fmt(data.timestamp)}`;
+  document.getElementById('ov-healthy').textContent = healthy;
+  document.getElementById('ov-uptime').textContent = uptime();
+  document.getElementById('ov-agent-badge').textContent = `${healthy}/${total} healthy`;
+  document.getElementById('ov-agent-badge').className = 'badge ' + (anyUnhealthy ? 'badge-yellow' : 'badge-green');
+
+  // Agents detail page
+  const list = document.getElementById('agents-detail-list');
+  list.innerHTML = '';
+  agents.forEach(a => {
+    const dot = a.status === 'healthy' ? 'dot-green' : a.status === 'unhealthy' ? 'dot-red' : 'dot-yellow';
+    const badge = a.status === 'healthy' ? 'badge-green' : a.status === 'unhealthy' ? 'badge-red' : 'badge-yellow';
+    const icon = a.agentType === 'Pipeline_Agent' ? '🔧' : a.agentType === 'Deployment_Agent' ? '🚀' : a.agentType === 'Incident_Agent' ? '🚨' : '🔔';
+    list.innerHTML += `<div class="agent-row">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div class="status-dot ${dot}"></div>
+        <div><div class="agent-name">${icon} ${a.agentType}</div>
+        <div class="agent-info">Last heartbeat: ${a.lastHeartbeatAt ? fmt(a.lastHeartbeatAt) : 'Never'}</div></div>
+      </div>
+      <span class="badge ${badge}">${a.status.toUpperCase()}</span>
+    </div>`;
+  });
+}
+
+function renderOverviewAgents(data) {
+  const agents = data.agents || [];
+  const el = document.getElementById('ov-agents-list');
+  el.innerHTML = '';
+  agents.forEach(a => {
+    const dot = a.status === 'healthy' ? 'dot-green' : a.status === 'unhealthy' ? 'dot-red' : 'dot-yellow';
+    el.innerHTML += `<div class="agent-row">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div class="status-dot ${dot}"></div>
+        <span style="font-size:.85rem;color:#fff">${a.agentType}</span>
+      </div>
+      <span style="font-size:.75rem;color:var(--gray)">${a.lastHeartbeatAt ? fmt(a.lastHeartbeatAt) : 'No heartbeat'}</span>
+    </div>`;
+  });
+}
+
+// ── Metrics ────────────────────────────────────────────────────────────
+async function loadMetrics() {
+  try {
+    const raw = await api('GET', '/metrics');
+    document.getElementById('metrics-raw').textContent = raw;
+    parseMetrics(raw);
+  } catch(e) {
+    document.getElementById('metrics-raw').textContent = 'Failed to load metrics: ' + e.message;
+  }
+}
+
+function parseMetrics(raw) {
+  const agents = ['Pipeline_Agent','Deployment_Agent','Incident_Agent','Notification_Agent'];
+  const ids = ['pipe','dep','inc','not'];
+  const barIds = ['bar-pipeline','bar-deployment','bar-incident','bar-notification'];
+  const mIds = ['m-pipe-total','m-dep-total','m-inc-total','m-not-total'];
+  let totalOvEvents = 0;
+
+  agents.forEach((agent, i) => {
+    const re = new RegExp(`crm_agent_total_events\\{agent="${agent}"\\}\\s+(\\d+)`);
+    const m = raw.match(re);
+    const val = m ? parseInt(m[1]) : 0;
+    totalOvEvents += val;
+    const el = document.getElementById(mIds[i]);
+    if (el) el.textContent = val;
+    const barEl = document.getElementById(barIds[i]);
+    if (barEl) {
+      const h = Math.max(4, Math.min(80, val * 4));
+      barEl.querySelector('.chart-bar').style.height = h + 'px';
+      barEl.querySelector('.chart-bar').setAttribute('data-val', val);
+    }
+    // overview
+    const srRe = new RegExp(`crm_agent_action_success_rate\\{agent="${agent}"\\}\\s+([\\d.]+)`);
+    const srM = raw.match(srRe);
+    const sr = srM ? parseFloat(srM[1]) : 0;
+    const srPct = (sr * 100).toFixed(1) + '%';
+    const latRe = new RegExp(`crm_agent_action_latency_ms\\{.*quantile="0\\.5".*agent="${agent}".*\\}\\s+([\\d.]+)`);
+    const latM = raw.match(latRe);
+    const lat = latM ? parseFloat(latM[1]).toFixed(0) + 'ms' : '—';
+    const prefix = ['pipe','dep','not','inc'][i] || ids[i];
+    const evEl = document.getElementById('ov-'+prefix+'-ev');
+    const srEl = document.getElementById('ov-'+prefix+'-sr');
+    const latEl = document.getElementById('ov-'+prefix+'-lat');
+    if(evEl) evEl.textContent = val;
+    if(srEl) srEl.textContent = srPct;
+    if(latEl) latEl.textContent = lat;
+  });
+  document.getElementById('ov-events').textContent = totalOvEvents;
+}
+</script>
+
+<script>
+// ── Pipeline ───────────────────────────────────────────────────────────
+async function triggerPipeline() {
+  const repo = document.getElementById('pipe-repo').value.trim();
+  const branch = document.getElementById('pipe-branch').value.trim();
+  const maxDur = document.getElementById('pipe-maxdur').value.trim();
+  if (!repo || !branch) { toast('Repository and branch are required', 'error'); return; }
+  const corrId = crypto.randomUUID ? crypto.randomUUID() : 'corr-' + Date.now();
+  const run = { id: 'run-' + Date.now(), repo, branch, status: 'triggering', startTime: new Date().toISOString(), corrId };
+  state.pipelineRuns.unshift(run);
+  renderPipelineRuns();
+  systemLog('info', 'pipeline.trigger', `Triggering ${repo}@${branch}`, corrId);
+  appendLog('pipeline-event-log', 'info', 'trigger', `Triggering ${repo}@${branch}`);
+  try {
+    const body = { eventId: corrId, correlationId: corrId, eventType: 'PipelineTriggerCommand',
+      source: 'Dashboard', timestamp: new Date().toISOString(),
+      repositoryName: repo, branchName: branch, triggerTimestamp: new Date().toISOString(),
+      ...(maxDur ? { maxDurationSeconds: parseInt(maxDur) } : {}) };
+    const res = await api('POST', '/webhook/github', body);
+    run.status = 'triggered';
+    toast(`Pipeline triggered for ${repo}@${branch}`, 'success');
+    systemLog('info', 'pipeline.trigger', `✓ Pipeline triggered — run ID pending`, corrId);
+    appendLog('pipeline-event-log', 'info', 'trigger', `✓ Accepted by server`);
+  } catch(e) {
+    run.status = 'failed';
+    toast('Trigger failed: ' + e.message, 'error');
+    appendLog('pipeline-event-log', 'error', 'trigger', `✗ Failed: ${e.message}`);
+  }
+  renderPipelineRuns();
+  addTimelineEvent('🔧', `Pipeline triggered: ${repo}@${branch}`, 'dot-blue');
+}
+
+function renderPipelineRuns() {
+  const el = document.getElementById('pipeline-runs-list');
+  if (!state.pipelineRuns.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🔧</div><p>No pipeline runs yet.</p></div>';
+    return;
+  }
+  el.innerHTML = state.pipelineRuns.slice(0, 10).map(r => {
+    const badge = r.status === 'triggered' ? 'badge-blue' : r.status === 'failed' ? 'badge-red' : r.status === 'success' ? 'badge-green' : 'badge-yellow';
+    return `<div class="agent-row">
+      <div><div class="agent-name">${r.repo}@${r.branch}</div><div class="agent-info">${fmt(r.startTime)}</div></div>
+      <span class="badge ${badge}">${r.status.toUpperCase()}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Deployments ────────────────────────────────────────────────────────
+async function triggerDeployment() {
+  const name = document.getElementById('dep-name').value.trim();
+  const ns = document.getElementById('dep-ns').value.trim();
+  const manifest = document.getElementById('dep-manifest').value.trim();
+  const runId = document.getElementById('dep-runid').value.trim();
+  if (!name || !ns) { toast('Deployment name and namespace are required', 'error'); return; }
+  const corrId = crypto.randomUUID ? crypto.randomUUID() : 'corr-' + Date.now();
+  systemLog('info', 'deployment.trigger', `Deploying ${name} → ${ns}`, corrId);
+  appendLog('deploy-event-log', 'info', 'deploy', `Deploying ${name} → ${ns} | manifest: ${manifest||'(none)'}`);
+  try {
+    const body = { eventId: corrId, correlationId: corrId, eventType: 'DeploymentCommand',
+      source: 'Dashboard', timestamp: new Date().toISOString(),
+      deploymentName: name, namespace: ns, manifestFilePath: manifest,
+      pipelineRunId: runId || 'manual-' + Date.now() };
+    await api('POST', '/webhook/github', body);
+    toast(`Deployment triggered: ${name} → ${ns}`, 'success');
+    appendLog('deploy-event-log', 'info', 'deploy', `✓ Accepted`);
+    addTimelineEvent('🚀', `Deployed ${name} → ${ns}`, 'dot-green');
+  } catch(e) {
+    toast('Deploy failed: ' + e.message, 'error');
+    appendLog('deploy-event-log', 'error', 'deploy', `✗ ${e.message}`);
+  }
+}
+
+async function resumeDeployment() {
+  const name = document.getElementById('resume-name').value.trim();
+  const ns = document.getElementById('resume-ns').value.trim();
+  if (!name || !ns) { toast('Deployment name and namespace required', 'error'); return; }
+  try {
+    await api('POST', '/api/resume-deployment', { deploymentName: name, namespace: ns });
+    toast(`Resumed ${name} in ${ns}`, 'success');
+    state.haltedDeployments = state.haltedDeployments.filter(d => !(d.name === name && d.ns === ns));
+    renderHaltRegistry();
+    systemLog('info', 'deployment.resume', `Resumed ${name} → ${ns}`);
+  } catch(e) {
+    toast('Resume failed (check server supports this endpoint)', 'error');
+  }
+}
+
+function renderHaltRegistry() {
+  const el = document.getElementById('halt-registry-list');
+  if (!state.haltedDeployments.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>No deployments halted.</p></div>';
+    return;
+  }
+  el.innerHTML = state.haltedDeployments.map(d =>
+    `<div class="agent-row">
+      <div><div class="agent-name">⛔ ${d.name}</div><div class="agent-info">${d.ns} — ${d.reason}</div></div>
+      <button class="btn btn-success btn-sm" onclick="quickResume('${d.name}','${d.ns}')">Resume</button>
+    </div>`).join('');
+}
+
+function quickResume(name, ns) {
+  document.getElementById('resume-name').value = name;
+  document.getElementById('resume-ns').value = ns;
+  resumeDeployment();
+}
+</script>
+
+<script>
+// ── Incidents ──────────────────────────────────────────────────────────
+async function simulateAlert() {
+  const id = document.getElementById('inc-id').value.trim() || 'INC-' + Date.now();
+  const svc = document.getElementById('inc-svc').value.trim();
+  const sev = document.getElementById('inc-severity').value;
+  let details = {};
+  try { details = JSON.parse(document.getElementById('inc-details').value || '{}'); } catch(e) {}
+  if (!svc) { toast('Service name is required', 'error'); return; }
+  const corrId = crypto.randomUUID ? crypto.randomUUID() : 'corr-' + Date.now();
+  systemLog('warn', 'incident.alert', `${sev} alert for ${svc} [${id}]`, corrId);
+  appendLog('incident-event-log', 'warn', 'alert', `${sev} → ${svc} | ID: ${id}`);
+  if (sev === 'P3' || sev === 'P4') {
+    appendLog('incident-event-log', 'debug', 'alert', `↳ ${sev} ignored (no action taken)`);
+    toast(`${sev} alert ignored (P3/P4 are not actioned)`, 'info');
+    return;
+  }
+  try {
+    const body = { eventId: corrId, correlationId: corrId, eventType: 'PagerDutyAlert',
+      source: 'Dashboard', timestamp: new Date().toISOString(),
+      incidentId: id, serviceName: svc, severity: sev,
+      receivedAt: new Date().toISOString(), details };
+    await api('POST', '/webhook/github', body);
+    toast(`${sev} alert sent for ${svc}`, 'success');
+    appendLog('incident-event-log', 'info', 'alert', `✓ Alert sent to Incident_Agent`);
+    addTimelineEvent('🚨', `${sev} alert: ${svc}`, 'dot-red');
+  } catch(e) {
+    toast('Alert failed: ' + e.message, 'error');
+    appendLog('incident-event-log', 'error', 'alert', `✗ ${e.message}`);
+  }
+}
+
+function registerRunbook() {
+  const svc = document.getElementById('rb-svc').value.trim();
+  const ver = document.getElementById('rb-ver').value.trim();
+  const timeout = parseInt(document.getElementById('rb-timeout').value) || 300;
+  if (!svc || !ver) { toast('Service name and version are required', 'error'); return; }
+  if (timeout > 300) { toast('Timeout cannot exceed 300 seconds', 'error'); return; }
+  const existing = state.runbooks.findIndex(r => r.svc === svc && r.ver === ver);
+  const rb = { svc, ver, timeout, registeredAt: new Date().toISOString() };
+  if (existing >= 0) state.runbooks[existing] = rb;
+  else state.runbooks.push(rb);
+  renderRunbooks();
+  toast(`Runbook registered: ${svc} v${ver}`, 'success');
+  systemLog('info', 'runbook.register', `Registered ${svc}@${ver} (timeout: ${timeout}s)`);
+  appendLog('incident-event-log', 'info', 'runbook', `Registered ${svc}@${ver}`);
+}
+
+function renderRunbooks() {
+  const el = document.getElementById('runbook-list');
+  if (!state.runbooks.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div><p>No runbooks registered.</p></div>';
+    return;
+  }
+  const latest = {};
+  state.runbooks.forEach(r => {
+    if (!latest[r.svc] || compareVer(r.ver, latest[r.svc].ver) > 0) latest[r.svc] = r;
+  });
+  el.innerHTML = Object.values(latest).map(r =>
+    `<div class="agent-row">
+      <div><div class="agent-name">📖 ${r.svc}</div><div class="agent-info">v${r.ver} | timeout: ${r.timeout}s</div></div>
+      <span class="badge badge-blue">LATEST</span>
+    </div>`).join('');
+}
+
+function compareVer(a, b) {
+  const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) { if ((pa[i]||0) !== (pb[i]||0)) return (pa[i]||0) - (pb[i]||0); }
+  return 0;
+}
+
+// ── Notifications ──────────────────────────────────────────────────────
+async function sendTestNotification() {
+  const channel = document.getElementById('notif-channel').value.trim();
+  const svc = document.getElementById('notif-svc').value.trim();
+  const outcome = document.getElementById('notif-outcome').value;
+  const handle = document.getElementById('notif-handle').value.trim() || null;
+  const eventType = document.getElementById('notif-eventtype').value;
+  if (!channel || !svc) { toast('Channel and service name required', 'error'); return; }
+  const corrId = crypto.randomUUID ? crypto.randomUUID() : 'corr-' + Date.now();
+  const entry = { channel, svc, outcome, eventType, time: new Date().toISOString(), status: 'sending' };
+  state.notificationHistory.unshift(entry);
+  renderNotificationHistory();
+  systemLog('info', 'notification.send', `${outcome.toUpperCase()} → ${channel} [${svc}]`, corrId);
+  appendLog('notif-event-log', 'info', 'send', `Sending ${outcome} to ${channel} for ${svc}`);
+  try {
+    const body = { eventId: corrId, correlationId: corrId, eventType: 'NotifyCommand',
+      source: 'Dashboard', timestamp: new Date().toISOString(),
+      triggerEvent: { eventId: corrId, correlationId: corrId, eventType, source: 'Dashboard', timestamp: new Date().toISOString() },
+      orchestratorTimestamp: new Date().toISOString(),
+      affectedServiceName: svc, outcome, onCallHandle: handle, channel };
+    await api('POST', '/webhook/github', body);
+    entry.status = 'sent';
+    toast(`Notification sent to ${channel}`, 'success');
+    appendLog('notif-event-log', 'info', 'send', `✓ Delivered to ${channel}`);
+  } catch(e) {
+    entry.status = 'failed';
+    toast('Notification failed: ' + e.message, 'error');
+    appendLog('notif-event-log', 'error', 'send', `✗ ${e.message}`);
+  }
+  renderNotificationHistory();
+}
+
+function renderNotificationHistory() {
+  const el = document.getElementById('notification-history');
+  if (!state.notificationHistory.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🔔</div><p>No notifications sent yet.</p></div>';
+    return;
+  }
+  el.innerHTML = state.notificationHistory.slice(0,10).map(n => {
+    const badge = n.status === 'sent' ? 'badge-green' : n.status === 'failed' ? 'badge-red' : 'badge-yellow';
+    const obadge = n.outcome === 'success' ? 'badge-green' : n.outcome === 'failure' ? 'badge-red' : n.outcome === 'rollback' ? 'badge-blue' : 'badge-purple';
+    return `<div class="agent-row">
+      <div><div class="agent-name">${n.channel}</div><div class="agent-info">${n.svc} | ${fmt(n.time)}</div></div>
+      <div style="display:flex;gap:.4rem"><span class="badge ${obadge}">${n.outcome}</span><span class="badge ${badge}">${n.status}</span></div>
+    </div>`;
+  }).join('');
+}
+</script>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────────
+async function applyPipelineConfig() {
+  const maxDur = document.getElementById('cfg-maxdur').value.trim();
+  const rollout = document.getElementById('cfg-rollouttimeout').value.trim();
+  toast('Pipeline config applied (hot-reload not yet wired to UI)', 'info');
+  systemLog('info', 'config.apply', `maxDuration=${maxDur||'none'} rolloutTimeout=${rollout}s`);
+}
+
+async function triggerConfigReload() {
+  try {
+    await api('POST', '/api/config-reload', {});
+    toast('Config reload triggered', 'success');
+    systemLog('info', 'config.reload', 'Hot-reload triggered from dashboard');
+  } catch(e) {
+    toast('Config reload triggered (endpoint may not be wired yet)', 'info');
+    systemLog('info', 'config.reload', 'Hot-reload requested');
+  }
+}
+
+async function loadConfigStatus() {
+  try {
+    const data = await api('GET', '/api/config-status');
+    if (data.jenkins) document.getElementById('cfg-jenkins-url').textContent = data.jenkins.baseUrl || '—';
+    const envs = { 'env-github': data.github, 'env-jenkins-url': data.jenkins, 'env-jenkins-token': data.jenkins, 'env-pd': data.pagerduty, 'env-slack': data.slack };
+    Object.entries(envs).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = val ? '<span class="badge badge-green">SET</span>' : '<span class="badge badge-red">MISSING</span>';
+    });
+  } catch(e) { /* config status endpoint optional */ }
+}
+
+// ── Timeline ───────────────────────────────────────────────────────────
+const timelineEvents = [];
+function addTimelineEvent(icon, text, dotClass) {
+  timelineEvents.unshift({ icon, text, time: new Date().toISOString(), dotClass });
+  if (timelineEvents.length > 20) timelineEvents.pop();
+  renderTimeline();
+}
+
+function renderTimeline() {
+  const el = document.getElementById('ov-timeline');
+  if (!el) return;
+  if (!timelineEvents.length) {
+    el.innerHTML = '<div style="color:var(--gray);font-size:.85rem;text-align:center;padding:2rem">No activity yet.</div>';
+    return;
+  }
+  el.innerHTML = timelineEvents.map(e =>
+    `<div class="timeline-item">
+      <div class="timeline-dot ${e.dotClass}" style="background:var(--green)"></div>
+      <div class="timeline-content">
+        <div class="timeline-time">${fmt(e.time)}</div>
+        <div>${e.icon} ${e.text}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Auto-refresh ────────────────────────────────────────────────────────
+async function refreshAll() {
+  document.getElementById('lastRefresh').textContent = 'Refreshing...';
+  await loadHealth();
+  await loadMetrics();
+  document.getElementById('lastRefresh').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+  document.getElementById('ov-uptime').textContent = uptime();
+  systemLog('debug', 'dashboard.refresh', 'Auto-refresh completed');
+}
+
+// ── Init ────────────────────────────────────────────────────────────────
+(async function init() {
+  systemLog('info', 'dashboard', 'CRM DevOps Agent Dashboard started');
+  addTimelineEvent('🟢', 'Dashboard connected', 'dot-green');
+  await refreshAll();
+  loadConfigStatus();
+  renderPipelineRuns();
+  renderHaltRegistry();
+  renderRunbooks();
+  renderNotificationHistory();
+  renderTimeline();
+  // Auto-refresh every 15 seconds
+  setInterval(refreshAll, 15000);
+})();
+</script>
+
+</body>
+</html>

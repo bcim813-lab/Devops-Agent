@@ -119,7 +119,7 @@ export class PipelineTrigger {
       });
 
       const failedEvent = this.buildFailedEvent(command, reason);
-      this.emit(failedEvent);
+      this.emit(failedEvent as unknown as OutboundEvent);
 
       return {
         success: false,
@@ -182,7 +182,7 @@ export class PipelineTrigger {
           branchName,
           triggerTimestamp,
         };
-        this.emit(triggeredEvent);
+        this.emit(triggeredEvent as unknown as OutboundEvent);
 
         return { success: true, value: runId };
       } catch (err: unknown) {
@@ -217,7 +217,7 @@ export class PipelineTrigger {
     });
 
     const failedEvent = this.buildFailedEvent(command, failureReason);
-    this.emit(failedEvent);
+    this.emit(failedEvent as unknown as OutboundEvent);
 
     return {
       success: false,

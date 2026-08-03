@@ -248,6 +248,6 @@ export class MessageDeliverer {
       failureReason,
     };
 
-    this.emit(failureEvent);
+    this.emit(failureEvent as unknown as OutboundEvent);
   }
 }

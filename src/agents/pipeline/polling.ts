@@ -332,7 +332,7 @@ export class PipelinePoller {
       errorMessage: failureReason,
     });
 
-    this.emit(event as OutboundEvent);
+    this.emit(event as unknown as OutboundEvent);
   }
 
   /**
@@ -361,7 +361,7 @@ export class PipelinePoller {
       params: { pipelineRunId, configuredMaxDurationSeconds },
     });
 
-    this.emit(event as OutboundEvent);
+    this.emit(event as unknown as OutboundEvent);
   }
 
   /**
@@ -404,7 +404,7 @@ export class PipelinePoller {
       },
     });
 
-    this.emit(event as OutboundEvent);
+    this.emit(event as unknown as OutboundEvent);
   }
 
   /**

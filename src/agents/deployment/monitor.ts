@@ -154,7 +154,7 @@ export class RolloutMonitor {
           reason: "rollout timeout",
         };
 
-        this.emit(rollbackEvent);
+        this.emit(rollbackEvent as unknown as OutboundEvent);
         return;
       }
 
@@ -200,7 +200,7 @@ export class RolloutMonitor {
           namespace,
         };
 
-        this.emit(successEvent);
+        this.emit(successEvent as unknown as OutboundEvent);
         return;
       }
 

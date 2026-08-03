@@ -83,6 +83,7 @@ export class CommandDispatcher {
   ): Promise<void> {
     this.logger.debug({
       action: "commandDispatcher.dispatch",
+      outcome: "pending",
       eventType,
       correlationId,
     });
@@ -144,6 +145,7 @@ export class CommandDispatcher {
         // Requirement 2.5: Within 15 s of event receipt
         this.logger.info({
           action: "commandDispatcher.dispatch.poll_failure",
+          outcome: "pending",
           correlationId,
           eventType,
         });
@@ -187,6 +189,7 @@ export class CommandDispatcher {
 
           this.logger.info({
             action: "commandDispatcher.dispatch.deployment",
+            outcome: "pending",
             correlationId,
             pipelineRunId: evt.pipelineRunId,
           });

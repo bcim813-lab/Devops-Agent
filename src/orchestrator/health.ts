@@ -9,6 +9,7 @@
 
 import { StructuredLogger } from "../utils/logger";
 import type { HealthStatus, AgentHealthEntry, AgentHealthDegradedEvent, AgentType } from "../types/models";
+import type { OutboundEvent } from "../interfaces/shared";
 import { v4 as uuidv4 } from "uuid";
 
 export interface AgentHealthTracker {

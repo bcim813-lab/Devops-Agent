@@ -188,7 +188,7 @@ export class IncidentHandler {
         failureReason: "No runbook found",
       };
 
-      this.emit(failureEvent);
+      this.emit(failureEvent as unknown as OutboundEvent);
       return;
     }
 
@@ -277,7 +277,7 @@ export class IncidentHandler {
         serviceName,
       };
 
-      this.emit(resolvedEvent);
+      this.emit(resolvedEvent as unknown as OutboundEvent);
     } else {
       // Requirement 5.4: Escalate via Slack within 30 s
       const reason = executionError?.message ?? "Runbook execution failed";
@@ -294,7 +294,7 @@ export class IncidentHandler {
         failureReason: reason,
       };
 
-      this.emit(failureEvent);
+      this.emit(failureEvent as unknown as OutboundEvent);
     }
   }
 
@@ -334,7 +334,7 @@ export class IncidentHandler {
           onCallHandle: null,
         };
 
-        this.emit(escalationEvent);
+        this.emit(escalationEvent as unknown as OutboundEvent);
         return;
       }
 
@@ -377,7 +377,7 @@ export class IncidentHandler {
         onCallHandle: handle,
       };
 
-      this.emit(escalationEvent);
+      this.emit(escalationEvent as unknown as OutboundEvent);
     } catch (err) {
       this.logger.error({
         action: "incident.escalation",

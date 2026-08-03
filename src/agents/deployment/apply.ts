@@ -89,7 +89,7 @@ export class ManifestApplier {
         kubernetesErrorMessage: result.error.message,
       };
 
-      this.emit(failureEvent);
+      this.emit(failureEvent as unknown as OutboundEvent);
 
       this.logger.error({
         action: "applyManifest",
