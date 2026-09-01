@@ -4,20 +4,20 @@
  * Organized by domain: Pipeline, Deployment, Incident, Notification, Health, Config.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HaltedError = exports.none = exports.some = exports.err = exports.ok = void 0;
+exports.HaltedError = exports.none = void 0;
+exports.ok = ok;
+exports.err = err;
+exports.some = some;
 /** Convenience helpers */
 function ok(value) {
     return { success: true, value };
 }
-exports.ok = ok;
 function err(error) {
     return { success: false, error };
 }
-exports.err = err;
 function some(value) {
     return { present: true, value };
 }
-exports.some = some;
 exports.none = { present: false };
 /** Error thrown when a command targets a halted (deploymentName, namespace) pair */
 class HaltedError extends Error {

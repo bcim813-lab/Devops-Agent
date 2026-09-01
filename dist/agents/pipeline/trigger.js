@@ -9,7 +9,8 @@
  * Requirements: 1.1, 1.2, 1.3, 1.4
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sleep = exports.PipelineTrigger = void 0;
+exports.PipelineTrigger = void 0;
+exports.sleep = sleep;
 const uuid_1 = require("uuid");
 const backoff_1 = require("../../utils/backoff");
 const logger_1 = require("../../utils/logger");
@@ -176,5 +177,4 @@ exports.PipelineTrigger = PipelineTrigger;
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
-exports.sleep = sleep;
 //# sourceMappingURL=trigger.js.map

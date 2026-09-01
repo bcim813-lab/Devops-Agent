@@ -16,7 +16,8 @@
  *  - Pipeline_Agent (ms) : { initial: 5_000, max: 60_000 }
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NOTIFICATION_BACKOFF_MS = exports.PIPELINE_BACKOFF_MS = exports.NOTIFICATION_BACKOFF = exports.PIPELINE_BACKOFF = exports.computeRetryDelay = void 0;
+exports.NOTIFICATION_BACKOFF_MS = exports.PIPELINE_BACKOFF_MS = exports.NOTIFICATION_BACKOFF = exports.PIPELINE_BACKOFF = void 0;
+exports.computeRetryDelay = computeRetryDelay;
 /**
  * Compute the retry delay for a given attempt index.
  *
@@ -39,7 +40,6 @@ function computeRetryDelay(attempt, opts) {
     const capped = Math.min(initial * Math.pow(2, attempt), max);
     return capped * jitter;
 }
-exports.computeRetryDelay = computeRetryDelay;
 /**
  * Pre-configured backoff options for the Pipeline_Agent Jenkins trigger/poll retries.
  * initial: 5 s, max: 60 s (in seconds, as used by property tests).

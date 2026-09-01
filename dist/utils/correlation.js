@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateCorrelationId = void 0;
+exports.generateCorrelationId = generateCorrelationId;
 const uuid_1 = require("uuid");
 /**
  * Generate a UUID v4 correlation ID.
@@ -14,5 +14,4 @@ const uuid_1 = require("uuid");
 function generateCorrelationId() {
     return (0, uuid_1.v4)();
 }
-exports.generateCorrelationId = generateCorrelationId;
 //# sourceMappingURL=correlation.js.map

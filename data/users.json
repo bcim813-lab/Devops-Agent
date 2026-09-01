@@ -1,0 +1,44 @@
+[
+  {
+    "id": "2fd6d932-691f-4e7c-b729-0c5959c7e794",
+    "username": "admin",
+    "email": "admin@devops.local",
+    "passwordHash": "c3c9b74f1a793e9f4afe04401a6ab457b29ec90b3148ea032f30adc360e75b29",
+    "salt": "b1afb80650b6e2df66df21f106430263521120fd67b67aff96619df594cb3bf3",
+    "role": "admin",
+    "displayName": "System Admin",
+    "avatar": "SA",
+    "createdAt": "2026-08-03T21:21:16.288Z",
+    "lastLoginAt": "2026-09-01T20:01:19.834Z",
+    "active": true,
+    "createdBy": "system"
+  },
+  {
+    "id": "8f3e5b83-ffd0-401c-b19e-80f2c34a8c2e",
+    "username": "ali1",
+    "email": "bcim813@gmail.com",
+    "passwordHash": "ab7fae2df0eb38927ed835f847c678504fbb2d5a9d2372b48e71927f1f9ff2ff",
+    "salt": "4861e00c4c214c292a4cda824d777215472316c69cc36a9edcd45d7cd173a731",
+    "role": "viewer",
+    "displayName": "ali",
+    "avatar": "AL",
+    "createdAt": "2026-09-01T19:51:30.720Z",
+    "lastLoginAt": null,
+    "active": true,
+    "createdBy": "admin"
+  },
+  {
+    "id": "f05a5121-b936-4d32-92eb-3fa3f8632e39",
+    "username": "ali2",
+    "email": "bcim@gmail.com",
+    "passwordHash": "2fb38adc36076c15eeb87b14b4f2220da540cf51b6b11333f957bc64c6af8ae6",
+    "salt": "9cb2b8cda29b1705bfe4b2883efe1f5f5bc6c4dde5491f7b6f4546718331adeb",
+    "role": "viewer",
+    "displayName": "ali",
+    "avatar": "AL",
+    "createdAt": "2026-09-01T19:52:54.283Z",
+    "lastLoginAt": "2026-09-01T19:56:10.843Z",
+    "active": true,
+    "createdBy": "admin"
+  }
+]

@@ -14,7 +14,8 @@
  * Requirements: 2.1, 2.2, 2.3, 2.5
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pollPipelineStatus = exports.PipelinePoller = void 0;
+exports.PipelinePoller = void 0;
+exports.pollPipelineStatus = pollPipelineStatus;
 const uuid_1 = require("uuid");
 // ---------------------------------------------------------------------------
 // Terminal state helper
@@ -294,5 +295,4 @@ async function pollPipelineStatus(runId, client, retryDelayMs = 10000) {
     await sleep(retryDelayMs);
     return client.getPipelineStatus(runId);
 }
-exports.pollPipelineStatus = pollPipelineStatus;
 //# sourceMappingURL=polling.js.map

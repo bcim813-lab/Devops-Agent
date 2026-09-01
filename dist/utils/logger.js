@@ -11,7 +11,8 @@
  *   password, secret, token, credential
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logger = exports.StructuredLogger = exports.maskSensitiveValues = exports.SENSITIVE_KEYS = void 0;
+exports.logger = exports.StructuredLogger = exports.SENSITIVE_KEYS = void 0;
+exports.maskSensitiveValues = maskSensitiveValues;
 /**
  * Canonical lowercase sensitive key names.
  * Matching is performed case-insensitively by lowercasing the actual key
@@ -64,7 +65,6 @@ function maskSensitiveValues(obj) {
     }
     return result;
 }
-exports.maskSensitiveValues = maskSensitiveValues;
 /** Default sink writes to stdout. */
 const defaultSink = (line) => process.stdout.write(line + "\n");
 class StructuredLogger {
